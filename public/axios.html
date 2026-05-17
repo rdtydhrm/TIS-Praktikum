@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Axios Test</title>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <h1>Testing REST API (Axios)</h1>
+
+        <button onclick="getStudents()">GET Students</button>
+        <button onclick="createStudent()">POST Student</button>
+        <button onclick="updateStudent()">PUT Student</button>
+        <button onclick="deleteStudent()">DELETE Student</button>
+
+        <script>
+            const BASE_URL = "http://127.0.0.1:8000/api/students";
+
+            function getStudents() {
+                axios
+                    .get(BASE_URL)
+                    .then((res) => console.log("GET:", res.data))
+                    .catch((err) => console.error(err));
+            }
+
+            function createStudent() {
+                axios
+                    .post(BASE_URL, {
+                        nim: "123456789012345",
+                        nama: "Budi",
+                        mataKuliah: [
+                            { kode: "CIE61205", nama: "PemWeb", sks: 3 },
+                        ],
+                    })
+                    .then((res) => console.log("POST:", res.data))
+                    .catch((err) => console.error(err.response.data));
+            }
+
+            function updateStudent() {
+                axios
+                    .put(BASE_URL + "/123456789012345", {
+                        nama: "Budi Update",
+                    })
+                    .then((res) => console.log("PUT:", res.data))
+                    .catch((err) => console.error(err.response.data));
+            }
+
+            function deleteStudent() {
+                axios
+                    .delete(BASE_URL + "/123456789012345")
+                    .then((res) => console.log("DELETE:", res.data))
+                    .catch((err) => console.error(err));
+            }
+        </script>
+    </body>
+</html>
