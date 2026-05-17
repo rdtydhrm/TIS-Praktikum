@@ -6,11 +6,12 @@ use App\Http\Controllers\Api\GatewayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/ping', function() {
+Route::get('/ping', function () {
     return response()->json(['message' => 'pong']);
 });
 
@@ -20,17 +21,19 @@ Route::get('/students', [StudentController::class, 'index']);
 Route::put('/students/{nim}', [StudentController::class, 'update']);
 Route::patch('/students/{nim}', [StudentController::class, 'update']);
 Route::delete('/students/{nim}', [StudentController::class, 'destroy']);
+Route::get('/students/{nim}/courses', [StudentController::class, 'coursesByStudent']);
+Route::get('/students/{nim}', [StudentController::class, 'show']);
 
 // Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['dummy.jwt'])->group(function() {
+Route::middleware(['dummy.jwt'])->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
-    Route::get('/admin/dashboard', function() {
+    Route::get('/admin/dashboard', function () {
         return response()->json(['message' => 'Welcome to Admin Dashboard']);
     })->middleware('role:admin');
-    Route::get('/user/dashboard', function() {
+    Route::get('/user/dashboard', function () {
         return response()->json(['message' => 'Welcome to User Dashboard']);
     })->middleware('role:user');
     Route::post('/logout', [AuthController::class, 'logout']);
