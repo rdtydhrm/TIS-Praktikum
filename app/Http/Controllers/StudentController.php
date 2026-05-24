@@ -7,10 +7,17 @@ use App\Models\Student;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
 class StudentController extends Controller
 {
     // INDEX
+    #[OA\Get(
+        path: "/v1/students",
+        summary: "Menampilkan data student versi 1",
+        tags: ["Students V1"]
+    )]
+    #[OA\Response(response: 200, description: "Data student versi 1 berhasil ditampilkan")]
     public function index()
     {
         $students = Student::with('courses')->get();
@@ -34,6 +41,25 @@ class StudentController extends Controller
     }
 
     // STORE
+    #[OA\Post(
+        path: "/v1/students",
+        summary: "Menambahkan data student baru ke database",
+        tags: ["Students V1"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["nim", "nama"],
+            properties: [
+                new OA\Property(property: "nim", type: "string", example: "123456789012347"),
+                new OA\Property(property: "nama", type: "string", example: "Budi Santoso"),
+                new OA\Property(property: "program_studi", type: "string", example: "Sistem Informasi"),
+                new OA\Property(property: "angkatan", type: "integer", example: 2023)
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: "Student berhasil ditambahkan")]
+    #[OA\Response(response: 422, description: "Validasi gagal")]
     public function store(Request $request)
     {
         try {
@@ -153,5 +179,31 @@ class StudentController extends Controller
             'student_nim' => $nim,
             'data'        => $student->courses
         ], 200);
+    }
+
+    // INDEX V2
+    #[OA\Get(
+        path: "/v2/students",
+        summary: "Menampilkan data student versi 2",
+        tags: ["Students V2"]
+    )]
+    #[OA\Response(response: 200, description: "Data student versi 2 berhasil ditampilkan dengan format baru")]
+    public function indexV2()
+    {
+        $students = Student::with('courses')->get()->map(function ($student) {
+            return [
+                'nim'               => $student->nim,
+                'nama'              => $student->nama,
+                'program_studi'     => $student->program_studi,
+                'status'            => 'active',
+                'mata_kuliah_count' => $student->courses->count()
+            ];
+        });
+
+        return response()->json([
+            'version' => 'v2',
+            'message' => 'Student data with new response format',
+            'data'    => $students
+        ]);
     }
 }

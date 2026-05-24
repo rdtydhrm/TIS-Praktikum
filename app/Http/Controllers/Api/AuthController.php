@@ -7,6 +7,7 @@ use App\Models\DummyUser;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
@@ -32,8 +33,6 @@ class AuthController extends Controller
             'password' => 'dummy999',
             'role'     => 'user'
         ],
-        
-        // TUGAS 4: User dummy baru dengan role manager
         [
             'id'       => 4,
             'name'     => 'Manager Keren',
@@ -73,6 +72,35 @@ class AuthController extends Controller
         ], 201);
     }
 
+    #[OA\Post(
+        path: "/v1/login",
+        summary: "Login user dan mendapatkan JWT token",
+        tags: ["Authentication"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["email", "password"],
+            properties: [
+                new OA\Property(property: "email", type: "string", example: "admin@example.com"),
+                new OA\Property(property: "password", type: "string", example: "secret321")
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Login berhasil",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string", example: "Login successful (dummy)"),
+                new OA\Property(property: "token", type: "string", example: "jwt_token_here")
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: "Email atau password salah"
+    )]
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -93,7 +121,7 @@ class AuthController extends Controller
         $token = JWTAuth::claims([
             'email' => $user->email,
             'name'  => $user->name,
-            'role'  => $userData['role']  // role dimasukkan ke payload
+            'role'  => $userData['role']
         ])->fromUser($user);
 
         return response()->json([
@@ -116,6 +144,33 @@ class AuthController extends Controller
         }
     }
 
+    #[OA\Get(
+        path: "/v1/profile",
+        summary: "Menampilkan profile user berdasarkan JWT token",
+        tags: ["Authentication"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Profile berhasil ditampilkan",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: "user",
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "email", type: "string", example: "admin@example.com"),
+                        new OA\Property(property: "name", type: "string", example: "Admin Hebat"),
+                        new OA\Property(property: "role", type: "string", example: "admin")
+                    ]
+                )
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: "Token tidak valid atau expired"
+    )]
     public function profile(Request $request)
     {
         try {
@@ -124,7 +179,7 @@ class AuthController extends Controller
                 'user' => [
                     'email' => $payload->get('email'),
                     'name'  => $payload->get('name'),
-                    'role'  => $payload->get('role')  // role ditampilkan di profile
+                    'role'  => $payload->get('role')
                 ]
             ]);
         } catch (JWTException $e) {

@@ -1,0 +1,266 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Student API Documentation",
+        "description": "Dokumentasi REST API untuk studi kasus Student API berbasis database, JWT Authentication, RBAC, API Gateway, dan API Versioning.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Local API Server"
+        }
+    ],
+    "paths": {
+        "/v1/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user dan mendapatkan JWT token",
+                "operationId": "60ea6c037acd6167d9cd13e71538e375",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret321"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful (dummy)"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "jwt_token_here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Email atau password salah"
+                    }
+                }
+            }
+        },
+        "/v1/profile": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Menampilkan profile user berdasarkan JWT token",
+                "operationId": "5ae24515a31c91678e365c2e6867eab9",
+                "responses": {
+                    "200": {
+                        "description": "Profile berhasil ditampilkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "admin@example.com"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Admin Hebat"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "admin"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau expired"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/gateway/students": {
+            "get": {
+                "tags": [
+                    "API Gateway"
+                ],
+                "summary": "Menampilkan data student melalui API Gateway",
+                "operationId": "adaac81535365f09c95508dc6515f52e",
+                "responses": {
+                    "200": {
+                        "description": "Data student berhasil ditampilkan melalui gateway",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "gateway": {
+                                            "type": "string",
+                                            "example": "API Gateway"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request forwarded to Student Service"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau tidak dikirim"
+                    },
+                    "403": {
+                        "description": "Role tidak memiliki akses"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/students": {
+            "get": {
+                "tags": [
+                    "Students V1"
+                ],
+                "summary": "Menampilkan data student versi 1",
+                "operationId": "a76b73bf8e79114f2b2729f244665d86",
+                "responses": {
+                    "200": {
+                        "description": "Data student versi 1 berhasil ditampilkan"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Students V1"
+                ],
+                "summary": "Menambahkan data student baru ke database",
+                "operationId": "510f509d2acb656bb713a144bcb3561e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nim",
+                                    "nama"
+                                ],
+                                "properties": {
+                                    "nim": {
+                                        "type": "string",
+                                        "example": "123456789012347"
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "program_studi": {
+                                        "type": "string",
+                                        "example": "Sistem Informasi"
+                                    },
+                                    "angkatan": {
+                                        "type": "integer",
+                                        "example": 2023
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Student berhasil ditambahkan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                }
+            }
+        },
+        "/v2/students": {
+            "get": {
+                "tags": [
+                    "Students V2"
+                ],
+                "summary": "Menampilkan data student versi 2",
+                "operationId": "37d2e344d24cfd9396aa486d7f6d7c4f",
+                "responses": {
+                    "200": {
+                        "description": "Data student versi 2 berhasil ditampilkan dengan format baru"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "API Gateway",
+            "description": "API Gateway"
+        },
+        {
+            "name": "Students V1",
+            "description": "Students V1"
+        },
+        {
+            "name": "Students V2",
+            "description": "Students V2"
+        }
+    ]
+}
